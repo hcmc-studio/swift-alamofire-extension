@@ -15,16 +15,19 @@ public class Request: NSObject {
     let baseUrl: String
     let encoder: JSONEncoder
     let decoder: JSONDecoder
-    var cookies = [String]()
+    let print: Bool
+    var cookies = [String : String]()
     
     public init(
         baseUrl: String,
         encoder: JSONEncoder = JSONEncoder(),
-        decoder: JSONDecoder = JSONDecoder()
+        decoder: JSONDecoder = JSONDecoder(),
+        printLog: Bool
     ) {
         self.baseUrl = baseUrl
         self.encoder = encoder
         self.decoder = decoder
+        self.print = printLog
     }
 }
 
@@ -142,12 +145,19 @@ extension Request.Builder {
     }
     
     func createRequest() throws -> DataRequest {
+        let url = createUrl()
+        let parameters = try createParameters()
+        let headers = createHeaders()
+        if request.print {
+            print(">> \(method.rawValue) \(url): headers=\(headers), body=\(String(describing: parameters))")
+        }
+        
         return Session().request(
-            createUrl(),
+            url,
             method: method,
-            parameters: try createParameters(),
+            parameters: parameters,
             encoding: JSONEncoding.default,
-            headers: createHeaders()
+            headers: headers
         )
     }
 }
@@ -164,8 +174,32 @@ extension AsynchronousRequest {
     private func fetch() async throws -> Data {
         let request = try builder.createRequest()
         let task = request.serializingData()
+        let response = await task.response
+        let data = try await task.value
+        if let cookies = response.response?.headers["Set-Cookie"] {
+            update(cookies: cookies)
+        }
+        try printResponse(response, data)
         
-        return try await task.value
+        return data
+    }
+    
+    private func update(cookies: String) {
+        for cookie in cookies.split(separator: ";") {
+            let tokens = cookie.trimming(while: { $0.isWhitespace })
+                .split(separator: "=")
+                .map { String($0) }
+            builder.request.cookies[tokens[0]] = tokens[1]
+            if builder.request.print {
+                print("Request: Cookie updated. name=\(tokens[0]), value=\(tokens[1])")
+            }
+        }
+    }
+    
+    private func printResponse(_ response: DataResponse<Data, AFError>, _ data: Data) throws {
+        if builder.request.print {
+            print("<< \(builder.method.rawValue) \(response.request?.url?.absoluteString ?? "<unidendified>"): headers=\(String(describing: response.response?.headers)), body=\(try JSON(data: data))")
+        }
     }
     
     private func decode<Result: Decodable>(data: Data) throws -> Result {
