@@ -17,7 +17,7 @@ public class Request: NSObject {
     let decoder: JSONDecoder
     var cookies = [String]()
     
-    init(
+    public init(
         baseUrl: String,
         encoder: JSONEncoder = JSONEncoder(),
         decoder: JSONDecoder = JSONDecoder()
