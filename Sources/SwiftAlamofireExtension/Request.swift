@@ -22,12 +22,12 @@ public class Request: NSObject {
         baseUrl: String,
         encoder: JSONEncoder = JSONEncoder(),
         decoder: JSONDecoder = JSONDecoder(),
-        printLog: Bool
+        print: Bool
     ) {
         self.baseUrl = baseUrl
         self.encoder = encoder
         self.decoder = decoder
-        self.print = printLog
+        self.print = print
     }
 }
 
@@ -136,12 +136,21 @@ extension Request.Builder {
     private func createHeaders() -> HTTPHeaders {
         var headers = HTTPHeaders()
         headers.add(name: "Content-Type", value: "application/json")
-        headers.add(name: "Cookie", value: request.cookies.joined(separator: "; "))
+        headers.add(name: "Cookie", value: createCookies())
         for (name, value) in header {
             headers.add(name: name, value: value)
         }
         
         return headers
+    }
+    
+    private func createCookies() -> String {
+        var cookies = [String]()
+        for (name, value) in request.cookies {
+            cookies.append("\(name)=\(value)")
+        }
+        
+        return cookies.joined(separator: "; ")
     }
     
     func createRequest() throws -> DataRequest {
