@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "SwiftAlamofireExtension",
-    platforms: [.macOS("10.15")],
+    platforms: [.iOS("13.0"), .macOS("10.15")],
     products: [
         .library(
             name: "SwiftAlamofireExtension",
