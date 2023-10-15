@@ -17,7 +17,7 @@ public class Request: NSObject {
     let encoder: JSONEncoder
     let decoder: JSONDecoder
     let print: Bool
-    var cookies = [String : String]()
+    var cookies = [String : String?]()
     let session = Session()
     
     public init(
@@ -177,7 +177,11 @@ extension Request.Builder {
     private func createCookies() -> String {
         var cookies = [String]()
         for (name, value) in request.cookies {
-            cookies.append("\(name)=\(value)")
+            if let value = value {
+                cookies.append("\(name)=\(value)")
+            } else {
+                cookies.append(name)
+            }
         }
         
         return cookies.joined(separator: "; ")
@@ -225,12 +229,16 @@ extension AsynchronousRequest {
     
     private func update(cookies: String) {
         for cookie in cookies.split(separator: ";") {
-            let tokens = cookie.trimming(while: { $0.isWhitespace })
-                .split(separator: "=")
-                .map { String($0) }
-            builder.request.cookies[tokens[0]] = tokens[1]
-            if builder.request.print {
-                print("Request: Cookie updated. name=\(tokens[0]), value=\(tokens[1])")
+            let splitIndex = cookie.firstIndex(of: "=")
+            if let splitIndex = splitIndex {
+                let name = String(cookie[cookie.startIndex..<splitIndex])
+                let value = String(cookie[cookie.index(splitIndex, offsetBy: 1)..<cookie.endIndex])
+                builder.request.cookies[name] = value
+                print("Request: Cookie updated. name=\(name), value=\(value)")
+            } else {
+                let name = String(cookie)
+                builder.request.cookies[name] = nil
+                print("Request: Cookie updated. name=\(name), value=nil")
             }
         }
     }
