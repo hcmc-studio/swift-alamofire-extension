@@ -269,6 +269,7 @@ extension AsynchronousRequest {
         return try decode(data: data)
     }
     
+    @discardableResult
     public func empty() async throws -> SwiftProtocolExtension.EmptyResponse {
         let data = try await fetch()
         
