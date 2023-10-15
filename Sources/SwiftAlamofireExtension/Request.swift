@@ -46,7 +46,7 @@ extension Request {
         var header = [String : String]()
         var param = [String : [String?]]()
         var dto: (any DataTransferObject)? = nil
-        var body = [String : any Decodable]()
+        var body = [String : any Codable]()
         
         init(request: Request, path: String, method: HTTPMethod) {
             self.request = request
@@ -81,7 +81,12 @@ extension Request.Builder {
     }
     
     public func set(body: (any DataTransferObject)?) -> Request.Builder {
-        self.dto = body
+        dto = body
+        return self
+    }
+    
+    public func set(body name: String, value: any Codable) -> Request.Builder {
+        body[name] = value
         return self
     }
     
@@ -112,26 +117,37 @@ extension Request.Builder {
         switch method {
         case .post, .put, .patch:
             if let dto = dto {
-                var parameters = Parameters()
-                let json = (try JSON(data: try request.encoder.encode(dto)))
-                for (key, value) in json {
-                    parameters[key] = value
-                }
-                
-                return parameters
+                return try createParameters(dto: dto)
             } else if !body.isEmpty {
-                var parameters = Parameters()
-                for (key, value) in body {
-                    parameters[key] = value
-                }
-                
-                return parameters
+                return createParameters(body: body)
             } else {
                 return nil
             }
         default:
-            throw SwiftAlamofireExtensionLocalError.RequestBodyViolation
+            if dto != nil || !body.isEmpty {
+                throw SwiftAlamofireExtensionLocalError.RequestBodyViolation
+            }
+            return nil
         }
+    }
+    
+    private func createParameters(dto: any DataTransferObject) throws -> Parameters {
+        var parameters = Parameters()
+        let json = (try JSON(data: try request.encoder.encode(dto)))
+        for (key, value) in json {
+            parameters[key] = value
+        }
+        
+        return parameters
+    }
+    
+    private func createParameters(body: [String : any Codable]) -> Parameters {
+        var parameters = Parameters()
+        for (key, value) in body {
+            parameters[key] = value
+        }
+        
+        return parameters
     }
     
     private func createHeaders() -> HTTPHeaders {
@@ -217,7 +233,7 @@ extension AsynchronousRequest {
             let url = response.request?.url?.absoluteString ?? "<unidentified>"
             let headers = (response.response?.headers).describe()
             let body = String(data: data, encoding: .utf8).describe()
-            print("<< \(builder.method.rawValue) \(url): headers=\(headers), body=\(body)")
+            print("<< \(method) \(url): headers=\(headers), body=\(body)")
         }
     }
     
