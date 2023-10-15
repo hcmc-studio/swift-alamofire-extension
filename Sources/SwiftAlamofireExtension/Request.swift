@@ -8,6 +8,7 @@
 import Foundation
 import Alamofire
 import SwiftProtocolExtension
+import SwiftTypeExtension
 import Algorithms
 import SwiftyJSON
 
@@ -136,7 +137,12 @@ extension Request.Builder {
     private func createHeaders() -> HTTPHeaders {
         var headers = HTTPHeaders()
         headers.add(name: "Content-Type", value: "application/json")
-        headers.add(name: "Cookie", value: createCookies())
+        
+        let cookies = createCookies()
+        if !cookies.isEmpty {
+            headers.add(name: "Cookie", value: cookies)
+        }
+        
         for (name, value) in header {
             headers.add(name: name, value: value)
         }
@@ -158,7 +164,7 @@ extension Request.Builder {
         let parameters = try createParameters()
         let headers = createHeaders()
         if request.print {
-            print(">> \(method.rawValue) \(url): headers=\(headers), body=\(String(describing: parameters))")
+            print(">> \(method.rawValue) \(url): headers=\(headers), body=\(parameters.describe())")
         }
         
         return Session().request(
@@ -207,7 +213,11 @@ extension AsynchronousRequest {
     
     private func printResponse(_ response: DataResponse<Data, AFError>, _ data: Data) throws {
         if builder.request.print {
-            print("<< \(builder.method.rawValue) \(response.request?.url?.absoluteString ?? "<unidendified>"): headers=\(String(describing: response.response?.headers)), body=\(try JSON(data: data))")
+            let method = builder.method.rawValue
+            let url = response.request?.url?.absoluteString ?? "<unidentified>"
+            let headers = (response.response?.headers).describe()
+            let body = String(data: data, encoding: .utf8).describe()
+            print("<< \(builder.method.rawValue) \(url): headers=\(headers), body=\(body)")
         }
     }
     

@@ -19,6 +19,11 @@ let package = Package(
             branch: "0.0.55"
         ),
         .package(
+            name: "SwiftTypeExtension",
+            url: "https://github.com/hcmc-studio/swift-type-extension",
+            branch: "0.0.55"
+        ),
+        .package(
             url: "https://github.com/Alamofire/Alamofire",
             .upToNextMajor(from: "5.8.0")
         ),
@@ -35,7 +40,7 @@ let package = Package(
     targets: [
         .target(
             name: "SwiftAlamofireExtension",
-            dependencies: ["SwiftProtocolExtension", "Alamofire", "Algorithms", "SwiftyJSON"]
+            dependencies: ["SwiftProtocolExtension", "SwiftTypeExtension", "Alamofire", "Algorithms", "SwiftyJSON"]
         ),
         .testTarget(
             name: "SwiftAlamofireExtensionTests",
