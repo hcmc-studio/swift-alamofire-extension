@@ -18,6 +18,7 @@ public class Request: NSObject {
     let decoder: JSONDecoder
     let print: Bool
     var cookies = [String : String]()
+    let session = Session()
     
     public init(
         baseUrl: String,
@@ -190,7 +191,7 @@ extension Request.Builder {
             print(">> \(method.rawValue) \(url): headers=\(headers), body=\(parameters.describe())")
         }
         
-        return Session().request(
+        return request.session.request(
             url,
             method: method,
             parameters: parameters,
