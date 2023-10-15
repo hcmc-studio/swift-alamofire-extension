@@ -14,12 +14,10 @@ let package = Package(
     ],
     dependencies: [
         .package(
-            name: "SwiftProtocolExtension",
             url: "https://github.com/hcmc-studio/swift-protocol-extension.git",
             branch: "0.0.55"
         ),
         .package(
-            name: "SwiftTypeExtension",
             url: "https://github.com/hcmc-studio/swift-type-extension",
             branch: "0.0.55"
         ),
@@ -28,19 +26,19 @@ let package = Package(
             .upToNextMajor(from: "5.8.0")
         ),
         .package(
-            name: "Algorithms",
             url: "https://github.com/apple/swift-algorithms.git",
             .upToNextMajor(from: "1.1.0")
-        ),
-        .package(
-            url: "https://github.com/SwiftyJSON/SwiftyJSON.git",
-            .upToNextMajor(from: "5.0.1")
         ),
     ],
     targets: [
         .target(
             name: "SwiftAlamofireExtension",
-            dependencies: ["SwiftProtocolExtension", "SwiftTypeExtension", "Alamofire", "Algorithms", "SwiftyJSON"]
+            dependencies: [
+                .product(name: "SwiftProtocolExtension", package: "swift-protocol-extension"),
+                .product(name: "SwiftTypeExtension", package: "swift-type-extension"),
+                .product(name: "Algorithms", package: "swift-algorithms"),
+                "Alamofire",
+            ]
         ),
         .testTarget(
             name: "SwiftAlamofireExtensionTests",

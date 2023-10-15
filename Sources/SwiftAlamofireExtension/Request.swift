@@ -10,7 +10,6 @@ import Alamofire
 import SwiftProtocolExtension
 import SwiftTypeExtension
 import Algorithms
-import SwiftyJSON
 
 public class Request: NSObject {
     let baseUrl: String
@@ -133,7 +132,7 @@ extension Request.Builder {
             if let dto = dto {
                 return try createParameters(dto: dto)
             } else if !body.isEmpty {
-                return createParameters(body: body)
+                return body
             } else {
                 return nil
             }
@@ -143,22 +142,9 @@ extension Request.Builder {
     }
     
     private func createParameters(dto: any DataTransferObject) throws -> Parameters {
-        var parameters = Parameters()
-        let json = (try JSON(data: try request.encoder.encode(dto)))
-        for (key, value) in json {
-            parameters[key] = value
-        }
+        let encodedDTO = try request.encoder.encode(dto)
         
-        return parameters
-    }
-    
-    private func createParameters(body: [String : any Codable]) -> Parameters {
-        var parameters = Parameters()
-        for (key, value) in body {
-            parameters[key] = value
-        }
-        
-        return parameters
+        return try JSONSerialization.jsonObject(with: encodedDTO) as! [String : Any]
     }
     
     private func createHeaders() -> HTTPHeaders {
