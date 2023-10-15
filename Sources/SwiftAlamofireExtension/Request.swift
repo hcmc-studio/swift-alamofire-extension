@@ -19,16 +19,19 @@ public class Request: NSObject {
     let print: Bool
     var cookies = [String : String?]()
     let session = Session()
+    let defaultHeaders: HTTPHeaders
     
     public init(
         baseUrl: String,
         encoder: JSONEncoder = JSONEncoder(),
         decoder: JSONDecoder = JSONDecoder(),
+        defaultHeaders: HTTPHeaders? = nil,
         print: Bool
     ) {
         self.baseUrl = baseUrl
         self.encoder = encoder
         self.decoder = decoder
+        self.defaultHeaders = defaultHeaders ?? [:]
         self.print = print
     }
 }
@@ -161,6 +164,10 @@ extension Request.Builder {
     private func createHeaders() -> HTTPHeaders {
         var headers = HTTPHeaders()
         headers.add(name: "Content-Type", value: "application/json")
+        
+        for (_, value) in request.defaultHeaders.enumerated() {
+            headers.add(value)
+        }
         
         let cookies = createCookies()
         if !cookies.isEmpty {
