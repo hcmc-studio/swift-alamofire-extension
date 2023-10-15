@@ -57,6 +57,7 @@ extension Request {
 }
 
 extension Request.Builder {
+    /// 요청 URL에 포함되는 인자를 추가합니다.
     public func add(param name: String, value: String?) -> Request.Builder {
         if var present = param[name] {
             present.append(value)
@@ -67,6 +68,8 @@ extension Request.Builder {
         return self
     }
     
+    /// 요청 URL에 포함되는 인자를 추가합니다.
+    /// 같은 이름을 갖는 여러 값을 추가할 때 사용합니다.
     public func add<Values>(param name: String, values: Values) -> Request.Builder where Values: Sequence, Values.Element == String? {
         var present = param[name] ?? []
         present.append(contentsOf: values)
@@ -75,16 +78,23 @@ extension Request.Builder {
         return self
     }
     
+    /// 요청 헤더를 추가합니다.
+    /// `Cookie`를 지정할 경우 저장된 쿠키가 무시됩니다.
     public func set(header name: String, value: String) -> Request.Builder {
         header[name] = value
         return self
     }
     
+    /// 요청 본문을 지정합니다.
+    /// `POST`, `PUT`, `PATCH`를 제외한 요청일 때 무시됩니다.
+    /// ``set(body:value:)``에서 지정한 내용을 무시합니다.
     public func set(body: (any DataTransferObject)?) -> Request.Builder {
         dto = body
         return self
     }
     
+    /// 요청 본문을 추가합니다.
+    /// `POST`, `PUT`, `PATCH`를 제외한 요청일 때 무시됩니다.
     public func set(body name: String, value: any Codable) -> Request.Builder {
         body[name] = value
         return self
@@ -124,9 +134,6 @@ extension Request.Builder {
                 return nil
             }
         default:
-            if dto != nil || !body.isEmpty {
-                throw SwiftAlamofireExtensionLocalError.RequestBodyViolation
-            }
             return nil
         }
     }
