@@ -258,7 +258,26 @@ extension AsynchronousRequest {
     }
     
     private func decode<Result: Decodable>(data: Data) throws -> Result {
-        return try builder.request.decoder.decode(Result.self, from: data)
+        do {
+            return try builder.request.decoder.decode(Result.self, from: data)
+        } catch let error {
+            if let error = error as? DecodingError {
+                switch error {
+                case .dataCorrupted(let context):
+                    builder.request.print(message: "DecodingError dataCorrupted: error=\(error), context=\(context)")
+                case .keyNotFound(let codingKey, let context):
+                    builder.request.print(message: "DecodingError keyNotFound: error=\(error), codingKey=\(codingKey), context=\(context)")
+                case .typeMismatch(let type, let context):
+                    builder.request.print(message: "DecodingError typeMismatch: error=\(error), type=\(type), context=\(context)")
+                case .valueNotFound(let type, let context):
+                    builder.request.print(message: "DecodingError typeMismatch: error=\(error), type=\(type), context=\(context)")
+                default:
+                    builder.request.print(message: "DecodingError <unknown>: error=\(error)")
+                }
+            }
+            
+            throw error
+        }
     }
     
     public func object<Result: Decodable>() async throws -> ObjectResponse<Result> {
