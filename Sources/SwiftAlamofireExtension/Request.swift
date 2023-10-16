@@ -19,19 +19,28 @@ public class Request: NSObject {
     var cookies = [String : String?]()
     let session = Session()
     let defaultHeaders: HTTPHeaders
+    let printer: (String) -> Void
     
     public init(
         baseUrl: String,
         encoder: JSONEncoder = JSONEncoder(),
         decoder: JSONDecoder = JSONDecoder(),
         defaultHeaders: HTTPHeaders? = nil,
-        print: Bool
+        print: Bool,
+        printer: @escaping (String) -> Void = { message in Swift.print(message) }
     ) {
         self.baseUrl = baseUrl
         self.encoder = encoder
         self.decoder = decoder
         self.defaultHeaders = defaultHeaders ?? [:]
         self.print = print
+        self.printer = printer
+    }
+    
+    func print(message: String) {
+        if print {
+            printer(message)
+        }
     }
 }
 
@@ -184,9 +193,7 @@ extension Request.Builder {
         let url = createUrl()
         let parameters = try createParameters()
         let headers = createHeaders()
-        if request.print {
-            print(">> \(method.rawValue) \(url): headers=\(headers), body=\(parameters.describe())")
-        }
+        request.print(message: ">> \(method.rawValue) \(url): headers=\(headers), body=\(parameters.describe())")
         
         return request.session.request(
             url,
@@ -215,6 +222,12 @@ extension AsynchronousRequest {
         if let cookies = response.response?.headers["Set-Cookie"] {
             update(cookies: cookies)
         }
+        if let response = response.response {
+            if 200..<300 ~= response.statusCode {
+                throw try builder.request.decoder.decode(ErrorResponse.self, from: data)
+            }
+        }
+        
         try printResponse(response, data)
         
         return data
@@ -227,27 +240,25 @@ extension AsynchronousRequest {
                 let name = String(cookie[cookie.startIndex..<splitIndex])
                 let value = String(cookie[cookie.index(splitIndex, offsetBy: 1)..<cookie.endIndex])
                 builder.request.cookies[name] = value
-                print("Request: Cookie updated. name=\(name), value=\(value)")
+                builder.request.print(message: "Cookie updated. name=\(name), value=\(value)")
             } else {
                 let name = String(cookie)
                 builder.request.cookies[name] = nil
-                print("Request: Cookie updated. name=\(name), value=nil")
+                builder.request.print(message: "Cookie updated. name=\(name), value=nil")
             }
         }
     }
     
     private func printResponse(_ response: DataResponse<Data, AFError>, _ data: Data) throws {
-        if builder.request.print {
-            let method = builder.method.rawValue
-            let url = response.request?.url?.absoluteString ?? "<unidentified>"
-            let headers = (response.response?.headers).describe()
-            let body = String(data: data, encoding: .utf8).describe()
-            print("<< \(method) \(url): headers=\(headers), body=\(body)")
-        }
+        let method = builder.method.rawValue
+        let url = response.request?.url?.absoluteString ?? "<unidentified>"
+        let headers = (response.response?.headers).describe()
+        let body = String(data: data, encoding: .utf8).describe()
+        builder.request.print(message: "<< \(method) \(url): headers=\(headers), body=\(body)")
     }
     
     private func decode<Result: Decodable>(data: Data) throws -> Result {
-        try builder.request.decoder.decode(Result.self, from: data)
+        return try builder.request.decoder.decode(Result.self, from: data)
     }
     
     public func object<Result: Decodable>() async throws -> ObjectResponse<Result> {

@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/hcmc-studio/swift-protocol-extension.git",
       "state" : {
-        "branch" : "0.0.55",
-        "revision" : "2c394f6a00b5134e834a0a248be33330f5a66163"
+        "branch" : "0.0.56",
+        "revision" : "a8be73c2c9c9f2577ec3bc0c03b1c0de66170fa5"
       }
     },
     {
@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/hcmc-studio/swift-type-extension",
       "state" : {
-        "branch" : "0.0.55",
-        "revision" : "0416716c64be17ff55fa465ec52e147c6ad3eb86"
+        "branch" : "0.0.56",
+        "revision" : "56bbd4e9ca1b2993ccee53e7df04a237f83cdd94"
       }
     }
   ],
