@@ -217,18 +217,18 @@ extension AsynchronousRequest {
     private func fetch() async throws -> Data {
         let request = try builder.createRequest()
         let task = request.serializingData()
-        let response = await task.response
+        let dataResponse = await task.response
         let data = try await task.value
-        if let cookies = response.response?.headers["Set-Cookie"] {
+        try printResponse(dataResponse, data)
+        guard let urlResponse = dataResponse.response else {
+            throw SwiftAlamofireExtensionLocalError.ResponseIsNil
+        }
+        if let cookies = urlResponse.headers["Set-Cookie"] {
             update(cookies: cookies)
         }
-        if let response = response.response {
-            if 200..<300 ~= response.statusCode {
-                throw try builder.request.decoder.decode(ErrorResponse.self, from: data)
-            }
+        if !(200..<300).contains(urlResponse.statusCode) {
+            throw try builder.request.decoder.decode(ErrorResponse.self, from: data)
         }
-        
-        try printResponse(response, data)
         
         return data
     }
