@@ -53,16 +53,16 @@ extension Request {
 extension Request {
     public class Builder {
         let request: Request
-        let path: String
+        let path: any StringProtocol
         let method: HTTPMethod
         var header = [String : String]()
         var param = [String : [String?]]()
         var dto: (any DataTransferObject)? = nil
         var body = [String : any Codable]()
         
-        init(request: Request, path: String, method: HTTPMethod) {
+        init(request: Request, path: any StringProtocol, method: HTTPMethod) {
             self.request = request
-            self.path = path
+            self.path = path.trimmingSuffix(while: { c in c == "/" })
             self.method = method
         }
     }
