@@ -8,7 +8,7 @@
 import Foundation
 import SwiftProtocolExtension
 
-public actor ContinuousFetchContext<VO: ValueObject, LO: ListOption, Delegate: ContinuousFetchContextDelegate> where Delegate.VO == VO {
+public actor ContinuousFetchContext<VO: ValueObject, Delegate: ContinuousFetchContextDelegate> where Delegate.VO == VO {
     let request: Request
     var hasMoreContents: Bool
     var isFetching: Bool
