@@ -47,6 +47,16 @@ public actor ContinuousFetchContext<VO: ValueObject, Delegate: ContinuousFetchCo
             }
         }
     }
+    
+    /// 처음부터 다시 불러오기 위해 초기화합니다. 이미 요청이 시작되었다면 종료될 때까지 대기합니다.
+    public func reset() async throws {
+        while isFetching {
+            try await Task.sleep(nanoseconds: 1_000_000)
+        }
+        
+        hasMoreContents = true
+        pageIndex = 0
+    }
 }
 
 public protocol ContinuousFetchContextDelegate {
@@ -74,4 +84,6 @@ extension ContinuousFetchContextDelegate {
     public func context(fetchSucceed new: [VO], isLast: Bool) {}
     
     public func context(fetchFailed error: Error) -> Bool { true }
+    
+    
 }
