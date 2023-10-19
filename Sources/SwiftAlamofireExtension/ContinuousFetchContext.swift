@@ -32,15 +32,26 @@ public actor ContinuousFetchContext<VO: ValueObject, Delegate: ContinuousFetchCo
     }
     
     public func fetch() async throws {
-        if isFetching || !hasMoreContents || -lastFetch.timeIntervalSinceNow >= interval {
-            return
-        }
-        if !(try await delegate.contextWillFetch()) {
+        if isFetching {
+            await MainActor.run { delegate.context(fetchCanceled: SwiftAlamofireExtensionLocalError.ContinuousFetchContext.AlreadyFetching) }
             return
         }
         
         isFetching = true
         defer { isFetching = false }
+        
+        if !hasMoreContents {
+            await MainActor.run { delegate.context(fetchCanceled: SwiftAlamofireExtensionLocalError.ContinuousFetchContext.NoMoreContent) }
+            return
+        }
+        if -lastFetch.timeIntervalSinceNow < interval {
+            await MainActor.run { delegate.context(fetchCanceled: SwiftAlamofireExtensionLocalError.ContinuousFetchContext.IntevalNotElapsed) }
+            return
+        }
+        if !(try await delegate.contextWillFetch()) {
+            await MainActor.run { delegate.context(fetchCanceled: SwiftAlamofireExtensionLocalError.ContinuousFetchContext.WillFetchReturnedFalse) }
+            return
+        }
         
         do {
             let pageSize = try await delegate.contextPageSize()
@@ -79,6 +90,9 @@ public protocol ContinuousFetchContextDelegate {
     
     /// 요청을 수행합니다.
     func context(fetch pageIndex: Int) async throws -> [VO]
+    
+    /// 요청이 취소되었을 때 호출됩니다.
+    func context(fetchCanceled error: Error)
     
     /// 요청을 성공했을 때 호출됩니다. 마지막 요청일 때 `isLast`에 `True`가 전달됩니다. MainActor에서 수행됩니다.
     func context(fetchSucceed new: [VO], isLast: Bool)
