@@ -221,7 +221,7 @@ extension AsynchronousRequest {
         let data = try await task.value
         try printResponse(dataResponse, data)
         guard let urlResponse = dataResponse.response else {
-            throw SwiftAlamofireExtensionLocalError.ResponseIsNil
+            throw SwiftAlamofireExtensionLocalError.Request.ResponseIsNil
         }
         if let cookies = urlResponse.headers["Set-Cookie"] {
             update(cookies: cookies)
