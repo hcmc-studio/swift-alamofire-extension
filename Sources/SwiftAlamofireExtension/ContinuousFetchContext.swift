@@ -13,18 +13,26 @@ public actor ContinuousFetchContext<VO: ValueObject, Delegate: ContinuousFetchCo
     var hasMoreContents: Bool
     var isFetching: Bool
     var pageIndex: Int
+    var lastFetch: Date
+    var interval: TimeInterval
     nonisolated let delegate: Delegate
     
-    public init(request: Request, delegate: Delegate) {
+    public init(
+        request: Request,
+        interval: TimeInterval,
+        delegate: Delegate
+    ) {
         self.request = request
         self.hasMoreContents = true
         self.isFetching = false
         self.pageIndex = 0
+        self.lastFetch = .init(timeIntervalSince1970: 0)
+        self.interval = interval
         self.delegate = delegate
     }
     
     public func fetch() async throws {
-        if isFetching || !hasMoreContents {
+        if isFetching || !hasMoreContents || -lastFetch.timeIntervalSinceNow >= interval {
             return
         }
         if !(try await delegate.contextWillFetch()) {
@@ -40,6 +48,7 @@ public actor ContinuousFetchContext<VO: ValueObject, Delegate: ContinuousFetchCo
             let hasMoreContents = pageSize == new.count
             self.hasMoreContents = hasMoreContents
             self.pageIndex += 1
+            self.lastFetch = .now
             await MainActor.run { delegate.context(fetchSucceed: new, isLast: !hasMoreContents) }
         } catch let error {
             if await MainActor.run(body: { delegate.context(fetchFailed: error) }) {
