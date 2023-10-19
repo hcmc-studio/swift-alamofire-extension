@@ -104,9 +104,9 @@ public protocol ContinuousFetchContextDelegate {
 extension ContinuousFetchContextDelegate {
     public func contextWillFetch() async throws -> Bool { true }
     
+    public func context(fetchCanceled error: Error) {}
+    
     public func context(fetchSucceed new: [VO], isLast: Bool) {}
     
     public func context(fetchFailed error: Error) -> Bool { true }
-    
-    
 }
