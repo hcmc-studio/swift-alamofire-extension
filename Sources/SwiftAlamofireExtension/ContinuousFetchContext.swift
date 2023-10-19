@@ -76,6 +76,7 @@ public actor ContinuousFetchContext<VO: ValueObject, Delegate: ContinuousFetchCo
         
         hasMoreContents = true
         pageIndex = 0
+        lastFetch = .init(timeIntervalSince1970: 0)
     }
 }
 
