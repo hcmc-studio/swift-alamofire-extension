@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftConcurrencyExtension
 import SwiftProtocolExtension
 
 public actor ContinuousFetchContext<VO: ValueObject, Delegate: ContinuousFetchContextDelegate> where Delegate.VO == VO {
@@ -29,6 +30,13 @@ public actor ContinuousFetchContext<VO: ValueObject, Delegate: ContinuousFetchCo
         self.lastFetch = .init(timeIntervalSince1970: 0)
         self.interval = interval
         self.delegate = delegate
+    }
+    
+    public func fetch(priority: TaskPriority? = nil) {
+        Task<Void, any Error>.execute(
+            priority: priority,
+            withoutResult: fetch
+        )
     }
     
     public func fetch() async throws {

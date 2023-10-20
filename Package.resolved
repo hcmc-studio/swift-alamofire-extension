@@ -19,6 +19,15 @@
       }
     },
     {
+      "identity" : "swift-concurrency-extension",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/hcmc-studio/swift-concurrency-extension",
+      "state" : {
+        "branch" : "0.0.59",
+        "revision" : "67dc33b45e3f40e644bae627a1d548bc3ea11909"
+      }
+    },
+    {
       "identity" : "swift-numerics",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-numerics.git",

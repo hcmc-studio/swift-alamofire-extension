@@ -14,6 +14,10 @@ let package = Package(
     ],
     dependencies: [
         .package(
+            url: "https://github.com/hcmc-studio/swift-concurrency-extension",
+            branch: "0.0.59"
+        ),
+        .package(
             url: "https://github.com/hcmc-studio/swift-protocol-extension.git",
             branch: "0.0.59"
         ),
@@ -34,6 +38,7 @@ let package = Package(
         .target(
             name: "SwiftAlamofireExtension",
             dependencies: [
+                .product(name: "SwiftConcurrencyExtension", package: "swift-concurrency-extension"),
                 .product(name: "SwiftProtocolExtension", package: "swift-protocol-extension"),
                 .product(name: "SwiftTypeExtension", package: "swift-type-extension"),
                 .product(name: "Algorithms", package: "swift-algorithms"),
