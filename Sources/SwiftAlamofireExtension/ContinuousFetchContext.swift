@@ -32,7 +32,7 @@ public actor ContinuousFetchContext<VO: ValueObject, Delegate: ContinuousFetchCo
         self.delegate = delegate
     }
     
-    public func fetch(priority: TaskPriority? = nil) {
+    public nonisolated func fetch(priority: TaskPriority? = nil) {
         Task<Void, any Error>.execute(
             priority: priority,
             withoutResult: fetch
