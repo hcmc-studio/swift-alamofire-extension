@@ -15,15 +15,15 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/hcmc-studio/swift-concurrency-extension",
-            branch: "0.0.67"
+            branch: "0.0.68"
         ),
         .package(
             url: "https://github.com/hcmc-studio/swift-protocol-extension.git",
-            branch: "0.0.67"
+            branch: "0.0.68"
         ),
         .package(
             url: "https://github.com/hcmc-studio/swift-type-extension",
-            branch: "0.0.67"
+            branch: "0.0.68"
         ),
         .package(
             url: "https://github.com/Alamofire/Alamofire",
