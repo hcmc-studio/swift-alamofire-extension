@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/hcmc-studio/swift-concurrency-extension",
       "state" : {
-        "branch" : "0.0.59",
-        "revision" : "67dc33b45e3f40e644bae627a1d548bc3ea11909"
+        "branch" : "0.0.67",
+        "revision" : "81a5551f9135c652b39928e5678a88cb2e634f25"
       }
     },
     {
@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/hcmc-studio/swift-protocol-extension.git",
       "state" : {
-        "branch" : "0.0.59",
-        "revision" : "cd65307a759459e9d2b1a4eb444c893df5a38439"
+        "branch" : "0.0.67",
+        "revision" : "babcb7bec9c8d767a08f94c3ab76eb7e40340b7c"
       }
     },
     {
@@ -50,7 +50,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/hcmc-studio/swift-type-extension",
       "state" : {
-        "branch" : "0.0.59",
+        "branch" : "0.0.67",
         "revision" : "56bbd4e9ca1b2993ccee53e7df04a237f83cdd94"
       }
     }
